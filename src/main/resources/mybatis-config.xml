@@ -14,7 +14,10 @@
     </settings>
     
     <plugins>
-        <plugin interceptor="com.github.pagehelper.PageInterceptor"/>
+        <plugin interceptor="com.github.pagehelper.PageInterceptor">
+            <!--参数合理化，超过最后一个只查最后一页-->
+            <property name="reasonable" value="true"/>
+        </plugin>
     </plugins>
 
 
