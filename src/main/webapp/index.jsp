@@ -5,6 +5,7 @@
   Time: 3:44 PM
   To change this template use File | Settings | File Templates.
 --%>
+
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <html>
@@ -36,13 +37,15 @@
                         <div class="col-sm-10">
                             <input type="text" class="form-control" name="empName" id="empName_input"
                                    placeholder="empName">
+                            <span class="help-block"></span>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="email_input" class="col-sm-2 control-label">email</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" name="email" id="email_input"
-                                   placeholder="eamil@qq.com">
+                                   placeholder="email@qq.com">
+                            <span class="help-block"></span>
                         </div>
                     </div>
 
@@ -72,11 +75,12 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                <button type="button" class="btn btn-primary">保存</button>
+                <button type="button" class="btn btn-primary" id="emp_save_btn">保存</button>
             </div>
         </div>
     </div>
 </div>
+
 
 <%--搭建显示页面--%>
 <div class="container">
@@ -88,7 +92,7 @@
     </div>
     <%--按钮--%>
     <div class="row">
-        <div class="col-md-4 col-md-offset-8">
+        <div class="col-md-2 col-md-offset-10">
             <button class="btn btn-primary" id="emp_add_modal_btn">新增</button>
             <button class="btn btn-danger">删除</button>
         </div>
@@ -128,9 +132,9 @@
     </div>
 </div>
 
-
 <script type="text/javascript">
     //页面加载完成后加载ajax请求
+    var totalRecord;
     $(function () {
         to_page(1);
     });
@@ -157,7 +161,6 @@
         $("#emps_table tbody").empty();
         var emps = result.extend.pageInfo.list;
         $.each(emps, function (index, item) {
-//            alert(item.empName);
             var empIdTd = $("<td></td>").append(item.empId);
             var empNameTd = $("<td></td>").append(item.empName);
             var gender = item.gender === "M" ? "男" : "女";
@@ -195,7 +198,9 @@
     function build_page_info(result) {
         $("#page_info_aera").empty();
         $("#page_info_aera").append("当前第" + result.extend.pageInfo.pageNum + "页，总共" + result.extend.pageInfo.pages + "页，总共" + result.extend.pageInfo.total + "条记录");
+        totalRecord = result.extend.pageInfo.total + 5;
     }
+
     //分页条
     function build_page_nav(result) {
         $("#page_nav_aera").empty();
@@ -232,7 +237,6 @@
                 to_page(result.extend.pageInfo.pageNum + 1);
             });
         }
-
 
         ul.append(firstPageLi).append(prePageLi);
         $.each(result.extend.pageInfo.navigatepageNums, function (index, item) {
@@ -281,6 +285,66 @@
         })
     }
 
+    function validata_add_form() {
+        //拿到校验数据
+        var empName = $("#empName_input").val();
+        var regName = /(^[a-zA-Z0-9_-]{6,16})|(^[\u2E80-\u9FFF]{2,5})/;
+
+        if (!regName.test(empName)) {
+            show_validata_msg("#empName_input", "error", "用户名为2-5位中文或6-16位英文");
+            return false;
+        } else {
+            show_validata_msg("#empName_input", "success", "");
+        }
+
+        //校验邮箱
+        var email = $("#email_input").val();
+        var regEmail = /^(\w)+(\.\w+)*@(\w)+((\.\w+)+)$/;
+
+        if (!regEmail.test(email)) {
+            show_validata_msg("#email_input", "error", "邮箱错误");
+            return false
+        } else {
+            show_validata_msg("#email_input", "success", "");
+        }
+
+        return true;
+    }
+
+    function show_validata_msg(ele, status, msg) {
+
+        //清除状态
+        $(ele).parent().removeClass("has-success has-error");
+        $(ele).next("span").text("");
+        if (status === "success") {
+            $(ele).parent().addClass("has-success");
+            $(ele).next("span").text(msg);
+        } else {
+            $(ele).parent().addClass("has-error");
+            $(ele).next("span").text(msg);
+        }
+
+    }
+
+    //点击保存
+    $("#emp_save_btn").click(function () {
+        //表单数据提交
+        //对数据校验
+        if (validata_add_form()) {
+            $.ajax({
+                url: "${PATH}/emp",
+                type: "POST",
+                data: $("#empAddModal form").serialize(),
+                success: function (result) {
+                    if (result.code === 100) {
+                        $("#empAddModal").modal('hide');
+                        to_page(totalRecord);
+                    }
+
+                }
+            })
+        }
+    })
 
 </script>
 
