@@ -335,7 +335,7 @@
                     show_validata_msg("#empName_input", "success", "用户名可用");
                     $("#emp_save_btn").attr("ajax_va", "success");
                 } else {
-                    show_validata_msg("#empName_input", "fail", result.extend.va_msg);
+                    show_validata_msg("#empName_input", "error", result.extend.va_msg);
                     $("#emp_save_btn").attr("ajax_va", "error");
                 }
 
@@ -377,6 +377,14 @@
                     if (result.code === 100) {
                         $("#empAddModal").modal('hide');
                         to_page(totalRecord);
+                    }else{
+                        //显示失败信息
+                        if(undefined != result.extend.errorField.email) {
+                            show_validata_msg("#email_input","error",result.extend.errorField.email);
+                        }
+                        if(undefined != result.extend.errorField.empName){
+                            show_validata_msg("#empName_input","error",result.extend.errorField.empName);
+                        }
                     }
 
                 }

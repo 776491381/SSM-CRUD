@@ -1,12 +1,22 @@
 package com.fyy.ssm.bean;
 
+import javax.validation.constraints.Pattern;
+
 public class Employee {
+
     private Integer empId;
 
+    /**
+     * JSR303校验
+     */
+
+    @Pattern(regexp = "(^[a-zA-Z0-9_-]{6,16})|(^[\u2E80-\u9FFF]{2,5})",message="用户名必须为2-5位中文或6-16位英文")
     private String empName;
 
     private String gender;
 
+//    @Email
+    @Pattern(regexp = "^(\\w)+(\\.\\w+)*@(\\w)+((\\.\\w+)+)$",message = "邮箱不正确")
     private String email;
 
     private Integer dId;

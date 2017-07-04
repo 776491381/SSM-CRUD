@@ -259,10 +259,21 @@
         navEle.appendTo("#page_nav_aera");
     }
 
+
+    function reset_form(ele) {
+        $(ele)[0].reset();
+        $(ele).find("*").removeClass("has-error has-success");
+        $(ele).find(".help-block").text("");
+    }
+
+
     //点击新增按钮弹出模态框
     $("#emp_add_modal_btn").click(function () {
-        //清楚模态框表单数据
-        $("#empAddModal form")[0].reset();
+        //清楚模态框表单数据和样式
+        //$("#empAddModal form")[0].reset();
+        reset_form("#empAddModal form");
+
+
         //发送ajax请求查出部门信息，显示在下拉列表中
         getDepts();
         $("#empAddModal").modal({
@@ -322,10 +333,10 @@
             success: function (result) {
                 if (result.code === 100) {
                     show_validata_msg("#empName_input", "success", "用户名可用");
-                    $("#emp_save_btn").attr("ajax_va","success");
+                    $("#emp_save_btn").attr("ajax_va", "success");
                 } else {
-                    show_validata_msg("#empName_input", "fail", result.extend.va_msg);
-                    $("#emp_save_btn").attr("ajax_va","error");
+                    show_validata_msg("#empName_input", "error", result.extend.va_msg);
+                    $("#emp_save_btn").attr("ajax_va", "error");
                 }
 
             }
@@ -354,8 +365,8 @@
         //表单数据提交
         //对数据校验
 
-        if($(this).attr("ajax_va") !== "success"){
-            return ;
+        if ($(this).attr("ajax_va") !== "success") {
+            return;
         }
         if (validata_add_form()) {
             $.ajax({
@@ -366,6 +377,14 @@
                     if (result.code === 100) {
                         $("#empAddModal").modal('hide');
                         to_page(totalRecord);
+                    }else{
+                        //显示失败信息
+                        if(undefined != result.extend.errorField.email) {
+                            show_validata_msg("#email_input","error",result.extend.errorField.email);
+                        }
+                        if(undefined != result.extend.errorField.empName){
+                            show_validata_msg("#empName_input","error",result.extend.errorField.empName);
+                        }
                     }
 
                 }
