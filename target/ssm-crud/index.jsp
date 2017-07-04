@@ -81,6 +81,7 @@
     </div>
 </div>
 
+
 <%--搭建显示页面--%>
 <div class="container">
     <%--标题--%>
@@ -130,7 +131,6 @@
         </div>
     </div>
 </div>
-
 
 <script type="text/javascript">
     //页面加载完成后加载ajax请求
@@ -200,6 +200,7 @@
         $("#page_info_aera").append("当前第" + result.extend.pageInfo.pageNum + "页，总共" + result.extend.pageInfo.pages + "页，总共" + result.extend.pageInfo.total + "条记录");
         totalRecord = result.extend.pageInfo.total + 5;
     }
+
     //分页条
     function build_page_nav(result) {
         $("#page_nav_aera").empty();
@@ -237,7 +238,6 @@
             });
         }
 
-
         ul.append(firstPageLi).append(prePageLi);
         $.each(result.extend.pageInfo.navigatepageNums, function (index, item) {
             var numLi;
@@ -261,6 +261,8 @@
 
     //点击新增按钮弹出模态框
     $("#emp_add_modal_btn").click(function () {
+        //清楚模态框表单数据
+        $("#empAddModal form")[0].reset();
         //发送ajax请求查出部门信息，显示在下拉列表中
         getDepts();
         $("#empAddModal").modal({
@@ -284,7 +286,6 @@
             }
         })
     }
-
 
     function validata_add_form() {
         //拿到校验数据
@@ -312,11 +313,32 @@
         return true;
     }
 
+
+    $("#empName_input").change(function () {
+        $.ajax({
+            url: "${PATH}/checkuser",
+            type: "GET",
+            data: "empName=" + this.value,
+            success: function (result) {
+                if (result.code === 100) {
+                    show_validata_msg("#empName_input", "success", "用户名可用");
+                    $("#emp_save_btn").attr("ajax_va","success");
+                } else {
+                    show_validata_msg("#empName_input", "fail", result.extend.va_msg);
+                    $("#emp_save_btn").attr("ajax_va","error");
+                }
+
+            }
+        });
+    });
+
+
     function show_validata_msg(ele, status, msg) {
 
         //清除状态
         $(ele).parent().removeClass("has-success has-error");
         $(ele).next("span").text("");
+
         if (status === "success") {
             $(ele).parent().addClass("has-success");
             $(ele).next("span").text(msg);
@@ -331,6 +353,10 @@
     $("#emp_save_btn").click(function () {
         //表单数据提交
         //对数据校验
+
+        if($(this).attr("ajax_va") !== "success"){
+            return ;
+        }
         if (validata_add_form()) {
             $.ajax({
                 url: "${PATH}/emp",
